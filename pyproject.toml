@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "web-password-rotate"
+version = "0.1.0"
+description = "Change a password on a web admin console, then prove it by signing in with the new one in a fresh browser."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["selenium>=4.11"]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+[project.scripts]
+web-password-rotate = "web_password_rotate.cli:main"
+
+[tool.setuptools]
+packages = ["web_password_rotate"]

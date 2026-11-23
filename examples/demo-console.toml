@@ -1,0 +1,74 @@
+# Describes the demo console in tests/fake_console.py.
+# For another console, copy this file and replace the selectors and steps.
+# web-page-inspector (https://github.com/Shinbaee/web-page-inspector) lists the frames
+# and selector candidates of a page, which is most of the work.
+#
+# Selectors start with "css:" or "xpath:". A list means "try these in order".
+# {account} is replaced by the account name as a quoted string literal: do not add quotes around it.
+# {new} and {old} are only allowed in the value of a type step, so passwords never end up
+# in a selector, a URL, a log line or an error message.
+
+base_url = "http://127.0.0.1:8080"
+step_timeout = 10
+
+[admin]
+url = "/admin/login"
+user = "css:#user"
+password = "css:#pass"
+submit = "xpath://button[normalize-space()='Sign in']"
+success_url = "/admin/console"
+error = "css:.login-error"
+
+# The change screen: one action per block, in order.
+# frame = "" (or omitted) is the top document; "main" or "main/inner" walks down by name or id.
+
+[[change]]
+frame = "nav"
+click = "css:#nav-users"
+
+# The user list is a JavaScript grid: the checkbox is a <div>, not an <input type=checkbox>.
+[[change]]
+frame = "main"
+click = [
+  "xpath://div[contains(@class,'cell') and normalize-space()={account}]/ancestor::tr[1]//div[contains(@class,'row-checker')]",
+  "xpath://div[contains(@class,'cell') and normalize-space()={account}]",
+]
+
+# Buttons are <span>s inside a <div>.
+[[change]]
+frame = "main"
+click = "xpath://span[@class='btn-text' and normalize-space()='Edit']"
+
+[[change]]
+frame = "main"
+type = "css:#new-pw"
+value = "{new}"
+
+[[change]]
+frame = "main"
+type = "css:#confirm-pw"
+value = "{new}"
+
+[[change]]
+frame = "main"
+click = "xpath://span[@class='btn-text' and normalize-space()='OK']"
+
+# "Change the password of ...?" confirm dialog
+[[change]]
+accept_alert = "change the password"
+
+# How the console says yes or no after the last step.
+[result]
+frame = "main"
+success_alert = "updated"
+error = "css:.form-error"
+timeout = 10
+
+# Where the account itself signs in. Checked in a new browser with an empty profile.
+[verify]
+url = "/portal/"
+user = "css:input[name=username]"
+password = "css:input[name=password]"
+submit = "xpath://form[@id='auth']//input[@type='submit']"
+success_url = "/portal/home"
+error = "css:.login-error"
